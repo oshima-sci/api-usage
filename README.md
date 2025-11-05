@@ -42,7 +42,7 @@ cp .env.example .env
 
 Edit `.env`:
 ```env
-OSHIMA_API_URL=http://127.0.0.1:8000
+OSHIMA_API_URL=https://api.oshimascience.com/api/v1
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your-anon-key-here
 OSHIMA_EMAIL=your@email.com
@@ -51,12 +51,10 @@ OSHIMA_PASSWORD=your-password
 
 **Where to find these:**
 - **SUPABASE_URL & SUPABASE_ANON_KEY**:
-  - Go to [Supabase Dashboard](https://supabase.com/dashboard)
-  - Select your project > Settings > API
-  - Copy "Project URL" and "anon/public" key
+  - See your inivite email
 - **OSHIMA_EMAIL & OSHIMA_PASSWORD**:
-  - Your Supabase user account credentials
-  - If you don't have an account, create one via Supabase Authentication
+  - Your Oshima user account credentials
+  - If you don't have an account, create one on [Oshima](https://oshimascience.com)
 
 ### 3. Usage Examples
 
@@ -91,23 +89,20 @@ python get_paper_extracts.py \
 
 Oshima uses **JWT (JSON Web Token) authentication**, the same as the Oshima web app:
 
-1. **Sign in** - Scripts authenticate with your Supabase email/password
-2. **Get JWT token** - Supabase returns a temporary token (valid ~1 hour)
+1. **Sign in** - Scripts authenticate with your Oshima email/password
+2. **Get JWT token** - API returns a temporary token (valid ~1 hour)
 3. **Use token** - Token is sent with each API request in the `Authorization` header
 4. **Papers linked to you** - All uploaded papers are associated with your account
 
 ### What You Need
 
-✅ **Supabase user account** - Regular user credentials (email/password)
+✅ **Oshima user account** - Regular user credentials (email/password)
 ✅ **Supabase project credentials** - Public URL and anon key
-❌ **NO service role key needed** - This is server-side only and never shared
 
 ### Security Notes
 
 - Your password is **only used to get a JWT token** (never sent to Oshima)
 - JWT tokens **expire after ~1 hour** (scripts handle re-authentication)
-- Scripts use the **same authentication** as the Oshima web app
-- **Service role key** stays on the server - you never need it
 
 ---
 
@@ -307,8 +302,7 @@ python get_paper_extracts.py \
 
 **Error: "Invalid login credentials"**
 - Check your email/password in `.env`
-- Ensure you have a Supabase user account
-- Verify email is confirmed (check Supabase dashboard)
+- Ensure you have an Oshima user account
 
 **Error: "Invalid or expired token"**
 - Token expired (happens after ~1 hour)
@@ -327,19 +321,19 @@ python get_paper_extracts.py \
 **Error: "Connection refused"**
 - Oshima API is not running
 - Check `OSHIMA_API_URL` in `.env`
-- For local: `http://127.0.0.1:8000`
-- For production: `https://api.oshimascience.com`
+- For production: `https://api.oshimascience.com/api/v1`
 
 ### Extracts Errors
 
 **Warning: "No claims/evidence found"**
 - Paper is still processing (takes 2-10 minutes)
 - Wait a few minutes and try again
-- Check processing status in Oshima dashboard
 
 ---
 
 ## API Endpoints Used
+
+See API Documentation [here](https://api.oshimascience.com/docs)
 
 ### Upload Paper
 - **Endpoint:** `POST /api/v1/papers/`
@@ -378,10 +372,5 @@ For more advanced usage (creating libraries, managing collections, etc.), see th
 
 ## Support
 
-- **API Documentation:** Check the Oshima API docs
-- **Issues:** If something isn't working, check the troubleshooting section
+- **API Documentation:** Check the [Oshima API docs](https://api.oshimascience.com/docs)
 - **Questions:** Contact the Oshima team or check documentation
-
----
-
-**Made for researchers, by researchers. Happy extracting! 🚀**
