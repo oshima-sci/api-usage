@@ -1,0 +1,31 @@
+# Environment variables (contains secrets)
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Output files
+paper_extracts.json
+*.json
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Test files
+test_*.pdf
+*.pdf
