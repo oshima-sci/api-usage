@@ -104,7 +104,7 @@ def get_paper_extracts(api_url: str, jwt_token: str, paper_ids: list) -> dict:
     return result
 
 
-def print_paper_summary(paper_data: dict):
+def print_paper_summary(paper_data: dict, elements_for_paper: list):
     """Print a summary of paper extracts."""
     metadata = paper_data.get('metadata', {})
     title = metadata.get('title', 'Untitled')
@@ -114,9 +114,8 @@ def print_paper_summary(paper_data: dict):
     print(f"   Filename: {metadata.get('original_filename', 'N/A')}")
 
     # Count elements
-    elements = paper_data.get('elements', [])
-    claims = [e for e in elements if e['type'] == 'claim']
-    evidence = [e for e in elements if e['type'] == 'evidence']
+    claims = [e for e in elements_for_paper if e['type'] == 'claim']
+    evidence = [e for e in elements_for_paper if e['type'] == 'evidence']
 
     bboxes = paper_data.get('bboxes', [])
 
@@ -128,7 +127,8 @@ def print_paper_summary(paper_data: dict):
     if claims:
         print(f"\n   📝 Sample Claims:")
         for claim in claims[:3]:
-            text = claim['text'][:100] + "..." if len(claim['text']) > 100 else claim['text']
+            text = claim.get('text_rephrased', claim.get('text_verbatim', ''))
+            text = text[:100] + "..." if len(text) > 100 else text
             print(f"      - {text}")
     else:
         print(f"\n   ⚠️  No claims found - paper may still be processing")
@@ -137,7 +137,8 @@ def print_paper_summary(paper_data: dict):
     if evidence:
         print(f"\n   🔍 Sample Evidence:")
         for ev in evidence[:3]:
-            text = ev['text'][:100] + "..." if len(ev['text']) > 100 else ev['text']
+            text = ev.get('text_rephrased', ev.get('text_verbatim', ''))
+            text = text[:100] + "..." if len(text) > 100 else text
             points_to = ev.get('evidence_data', {}).get('points_to', [])
             print(f"      - {text}")
             if points_to:
@@ -211,15 +212,33 @@ def main():
         print("📊 RESULTS")
         print("=" * 80)
 
-        papers = result.get('data', {}).get('papers', [])
+        data = result.get('data', {})
+        papers = data.get('papers', [])
+        all_elements = data.get('elements', [])
+        stats = data.get('stats', {})
 
         if not papers:
             print("⚠️  No papers found or no extracts available yet")
             print("   Papers might still be processing. Check back later.")
         else:
-            print(f"\n✅ Retrieved {len(papers)} paper(s) with extracts\n")
+            # Show overall stats
+            print(f"\n✅ Retrieved {len(papers)} paper(s) with extracts")
+            print(f"   Total Claims: {stats.get('total_claims', 0)}")
+            print(f"   Total Evidence: {stats.get('total_evidence', 0)}\n")
+
+            # Group elements by paper_id
+            elements_by_paper = {}
+            for element in all_elements:
+                paper_id = element.get('paper_id')
+                if paper_id not in elements_by_paper:
+                    elements_by_paper[paper_id] = []
+                elements_by_paper[paper_id].append(element)
+
+            # Print summary for each paper
             for paper in papers:
-                print_paper_summary(paper)
+                paper_id = paper['id']
+                paper_elements = elements_by_paper.get(paper_id, [])
+                print_paper_summary(paper, paper_elements)
 
     except httpx.HTTPStatusError as e:
         print(f"\n❌ HTTP Error: {e}")
